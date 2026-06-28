@@ -280,7 +280,7 @@ def desembolsar(db: Session, codsolicitud: str) -> dict:
 def generar_cronograma(db: Session, codsolicitud: str) -> dict:
     """
     Actividad 45: plan de pagos referencial (cuota fija francesa) a partir
-    del monto aprobado y la TEA sugerida por el scoring del tipo de crédito.
+    del monto aprobado y la TEA sugerida por el historial crediticio del cliente.
     """
     sol = repsol.obtener(db, codsolicitud)
     if not sol:
@@ -288,25 +288,47 @@ def generar_cronograma(db: Session, codsolicitud: str) -> dict:
     if sol.pksolicitudestado != repsol.ESTADO_APROBADO:
         return {"error": "La solicitud no está aprobada", "estado": sol.dessolicitudestado}
 
+    cliente = rep_clientes.get_by_cod(db, sol.codcliente)
+    if not cliente:
+        return {"error": "Cliente asociado no encontrado"}
+
     monto = float(sol.montoaprobadocredito or sol.montosolicitudcredito or 0)
     plazo = int(sol.plazosolicitudcredito or sol.nrocuotasolicitud or 12)
-    tea = ctl_scoring.TEA_POR_TIPO.get(
-        (sol.codtiposolicitud or "CO"), {"mid": 40.0}
-    )["mid"]
+    if monto <= 0 or plazo <= 0:
+        return {"error": "Monto o plazo inválido para generar el cronograma"}
+
+    # Determinar TEA según calificación crediticia real (historial) del cliente.
+    elegibilidad = svc_elegibilidad.evaluar(db, cliente.pkcliente)
+    calificacion = elegibilidad.get("calificacion", "SIN_HISTORIAL")
+
+    if calificacion == "Normal":
+        tea = 14.0
+    elif calificacion == "CPP":
+        tea = 28.5
+    elif calificacion == "SIN_HISTORIAL":
+        tea = 28.5
+    else:
+        tea = 45.0
+
+    DESGRAVAMEN_MENSUAL_FRACT = 0.00085  # 0.085% mensual
     tem = (1 + tea / 100) ** (1 / 12) - 1
-    cuota = monto * tem * (1 + tem) ** plazo / ((1 + tem) ** plazo - 1) if tem > 0 else monto / plazo
+    cuota_base = monto * tem * (1 + tem) ** plazo / ((1 + tem) ** plazo - 1) if tem > 0 else monto / plazo
 
     saldo = monto
     cuotas = []
     for n in range(1, plazo + 1):
         interes = saldo * tem
-        capital = cuota - interes
+        desgravamen = saldo * DESGRAVAMEN_MENSUAL_FRACT
+        capital = cuota_base - interes
+        cuota_total_mes = cuota_base + desgravamen
         saldo = max(0.0, saldo - capital)
         cuotas.append({
             "nrocuota": n,
-            "cuota": round(cuota, 2),
+            "cuota_base": round(cuota_base, 2),
             "capital": round(capital, 2),
             "interes": round(interes, 2),
+            "desgravamen": round(desgravamen, 2),
+            "cuota_total": round(cuota_total_mes, 2),
             "saldo": round(saldo, 2),
         })
 
@@ -314,7 +336,7 @@ def generar_cronograma(db: Session, codsolicitud: str) -> dict:
         "codsolicitud": codsolicitud,
         "monto": round(monto, 2),
         "plazo_meses": plazo,
-        "tea": tea,
-        "cuota_referencial": round(cuota, 2),
+        "tea_aplicada": tea,
+        "tasa_desgravamen": "0.085%",
         "cronograma": cuotas,
     }
