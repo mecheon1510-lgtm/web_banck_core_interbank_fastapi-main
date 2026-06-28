@@ -11,15 +11,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# CORREGIDO: Permitir que Vercel y cualquier origen consulte la API libremente
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React Vite frontend
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(rtr_auth.router,      prefix="/auth",      tags=["Auth"])
+app.include_router(rtr_auth.router,       prefix="/auth",      tags=["Auth"])
 app.include_router(rtr_scoring.router,   prefix="/scoring",   tags=["Scoring"])
 app.include_router(rtr_creditos.router,  prefix="/creditos",  tags=["Créditos"])
 app.include_router(rtr_ahorros.router,   prefix="/ahorros",   tags=["Ahorros"])
@@ -31,6 +32,3 @@ app.include_router(rtr_recuperaciones.router, prefix="/recuperaciones", tags=["R
 @app.get("/")
 def root():
     return {"sistema": "Core Financiero Banco Andino", "version": "1.0.0", "status": "ok"}
-
-
-
