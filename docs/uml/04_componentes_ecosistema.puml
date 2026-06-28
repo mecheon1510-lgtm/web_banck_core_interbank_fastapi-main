@@ -1,0 +1,46 @@
+@startuml componentes_ecosistema
+' Arquitectura del ecosistema: 2 backends + 2 frontends + BD compartida
+title Ecosistema Banco Andino — Componentes
+
+skinparam componentStyle rectangle
+
+actor "Personal\n(asesor/comité)" as Per
+actor "Cliente" as Cli
+
+package "Frontend" {
+  [Front Core\nReact :5173] as FC
+  [Front HB\nReact :5174] as FH
+}
+
+package "Backend (FastAPI)" {
+  [Core API :8001] as BC
+  [Homebanking API :8002] as BH
+}
+
+database "PostgreSQL\nbd_core_financiero" as DB
+
+Per --> FC
+Cli --> FH
+FC --> BC : REST + JWT (personal)
+FH --> BH : REST + JWT (cliente)
+BC --> DB
+BH --> DB
+
+note bottom of DB
+  80 tablas. Datos recalibrados (SGN):
+  2 productos (Empresarial/Consumo),
+  mora ~13%. Ambos backends escriben
+  en las MISMAS tablas (integración real).
+end note
+
+note right of BC
+  Scoring, solicitud, comité,
+  desembolso, dashboard, bandeja,
+  productos dinámicos, recuperaciones
+end note
+
+note right of BH
+  Login cliente, cuentas,
+  movimientos, pagar, solicitar
+end note
+@enduml

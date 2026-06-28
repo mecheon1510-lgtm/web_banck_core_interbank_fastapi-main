@@ -1,0 +1,41 @@
+@startuml secuencia_recuperaciones
+' Secuencia de Recuperaciones / Mora (R1 consulta, R2 gestión, R3 transiciones)
+title Recuperaciones — Consulta, Gestión y Transiciones de Cobranza
+
+actor "Gestor / Asesor" as Ges
+actor "Administrador" as Adm
+actor "Comité" as Com
+participant "Core API\n/recuperaciones" as API
+database "bd_core_financiero" as DB
+
+== R1: Consulta de mora ==
+Ges -> API : GET /recuperaciones/resumen
+API -> DB : agrupa fagcuentacredito por banda
+API --> Ges : KPIs por banda (Preventiva..Castigo)
+Ges -> API : GET /recuperaciones/cartera?banda=TEMPRANA
+API --> Ges : créditos morosos de la banda
+
+== R2: Gestión de cobranza ==
+Ges -> API : POST .../creditos/{cod}/gestion (LLAM, compromiso)
+API -> DB : INSERT fgestioncobranza
+API --> Ges : gestión registrada (banda, días)
+Ges -> API : GET .../creditos/{cod}/gestiones
+API --> Ges : historial de gestiones
+
+== R3: Transición a judicial (>=121 días) ==
+Adm -> API : POST .../creditos/{cod}/judicial
+API -> API : valida días >= 121 y permiso (administrador/gerencia)
+alt cumple umbral
+  API -> DB : UPDATE flagjudicial='S', estado=Cobranza Judicial
+  API -> DB : INSERT fgestioncobranza (JUDI)
+  API --> Adm : 200 En Cobranza Judicial
+else no cumple
+  API --> Adm : 400 "Requiere >= 121 días"
+end
+
+== R3: Castigo (>180 días) ==
+Com -> API : POST .../creditos/{cod}/castigar
+API -> API : valida días > 180 y permiso (comité/gerencia)
+API -> DB : UPDATE flagcastigado='S', estado=Castigado
+API --> Com : 200 Castigado
+@enduml

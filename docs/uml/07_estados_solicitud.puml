@@ -1,0 +1,27 @@
+@startuml estados_solicitud
+' Máquina de estados de la solicitud de crédito (dsolicitudestado)
+title Estados de la Solicitud de Crédito
+
+[*] --> EnEvaluacion : crear (estado 1)
+
+EnEvaluacion --> EnComite : enviar a comité (6)
+EnEvaluacion --> Rechazado : no sujeto / Riesgos desfavorable (3)
+
+EnComite --> Aprobado : resolución APROBADO (2)
+EnComite --> Rechazado : DENEGADO temporal/definitivo (3)
+
+Aprobado --> Desembolsado : desembolsar (4)
+Desembolsado --> [*]
+Rechazado --> [*]
+
+note right of EnEvaluacion
+  Aquí: pre-scoring, RDS,
+  ingresos, evaluación,
+  opiniones (admin/jefe/riesgos)
+end note
+note right of Desembolsado
+  Crea dcuentacredito +
+  foperaciones (DCAP).
+  No permite re-desembolso.
+end note
+@enduml

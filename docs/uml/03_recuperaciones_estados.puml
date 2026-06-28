@@ -1,0 +1,36 @@
+@startuml recuperaciones_estados
+' Máquina de estados de cobranza por días de mora (MPR Recuperación del Crédito)
+title Recuperaciones — Estados del crédito según días de mora
+
+[*] --> Vigente : desembolso
+
+Vigente --> MoraPreventiva : 1-2 días\n(SMS/llamada)
+MoraPreventiva --> Vigente : paga
+
+Vigente --> MoraTemprana : 7-30 días
+MoraPreventiva --> MoraTemprana : 7-30 días
+MoraTemprana --> Vigente : paga (SMS/llamada)
+
+MoraTemprana --> MoraTardia : desde 31 días
+MoraTardia --> Vigente : paga / refinancia
+
+MoraTardia --> CobranzaJudicial : Minorista 106 /\nNo Minorista 121 /\nRefinanciado 76
+note right of CobranzaJudicial
+  flagjudicial='S'
+  fechaingresojudicial
+end note
+
+CobranzaJudicial --> Castigado : > 180 días\n(flagcastigado='S')
+CobranzaJudicial --> Vigente : paga total
+
+Castigado --> TransferenciaCartera : decisión Comité Gerencia
+Castigado --> [*] : recuperado / dado de baja
+TransferenciaCartera --> [*]
+
+state "Mora Preventiva\n(P01)" as MoraPreventiva
+state "Mora Temprana\n(P02)" as MoraTemprana
+state "Mora Tardía\n(P03)" as MoraTardia
+state "Cobranza Judicial\n(P04)" as CobranzaJudicial
+state "Castigado\n(P06)" as Castigado
+state "Transferencia\nde Cartera (P07)" as TransferenciaCartera
+@enduml

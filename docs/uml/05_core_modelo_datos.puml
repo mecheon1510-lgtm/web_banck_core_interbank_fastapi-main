@@ -1,0 +1,109 @@
+@startuml core_modelo_datos
+' Modelo de datos del Core (entidades principales del flujo de crédito + recuperaciones)
+title Core Financiero — Modelo de Datos (entidades clave)
+
+skinparam linetype ortho
+hide circle
+
+entity dcliente {
+  * pkcliente : int <<PK>>
+  --
+  codcliente
+  nomcliente
+  numerodocumentoidentidad
+  montoingresoneto
+}
+
+entity dsolicitud {
+  * pksolicitud : int <<PK>>
+  --
+  codsolicitud
+  pkcliente <<FK>>
+  pkproducto <<FK>>
+  pknivelaprobacion <<FK>>
+  pksolicitudestado <<FK>>
+  montosolicitudcredito
+  montoaprobadocredito
+}
+
+entity dcuentacredito {
+  * pkcuentacredito : int <<PK>>
+  --
+  codcuentacredito
+  pkcliente <<FK>>
+}
+
+entity fagcuentacredito {
+  * pkcuentacredito <<FK>>
+  * periodomes
+  --
+  pksolicitud <<FK>>
+  pkproducto <<FK>>
+  pkcalificacioncrediticiainterna <<FK>>
+  pkestadocredito <<FK>>
+  montosaldocapital
+  diasatrasocredito
+  flagjudicial / flagcastigado
+}
+
+entity devaluacion {
+  * pkevaluacion : int <<PK>>
+  --
+  codsolicitud <<FK>>
+  valorexcedentecredito
+  tipoevaluacion (ME|CO)
+}
+
+entity fevalmicroactivo {
+  * pkevaluacion <<FK>>
+  montoactivodisponible/inventario/fijo
+}
+entity fevalconsumo {
+  * pkevaluacion <<FK>>
+  monto / montogastofamiliar
+}
+
+entity fplanpagomes {
+  * pkcuentacredito <<FK>>
+  * nrocuota
+  montocuota / montocapitalpagado
+}
+
+entity foperaciones {
+  * pkoperacion : bigint <<PK>>
+  --
+  pkcuentacredito <<FK>>
+  pkconceptooperacion / pkcanaltransaccional
+  montooperacion
+}
+
+entity fgestioncobranza {
+  * pkgestion : bigint <<PK>>
+  --
+  pkcuentacredito <<FK>>
+  pktipogestion <<FK>>
+  banda / gestor / compromisopago
+}
+
+entity dproducto {
+  * pkproducto <<PK>>
+  codtipocredito (01|02|03)
+}
+entity dnivelaprobacion {
+  * pknivelaprobacion <<PK>>
+  montominimo / montomaximo
+}
+
+dcliente ||--o{ dsolicitud
+dcliente ||--o{ dcuentacredito
+dproducto ||--o{ dsolicitud
+dnivelaprobacion ||--o{ dsolicitud
+dsolicitud ||--o| devaluacion
+devaluacion ||--o| fevalmicroactivo
+devaluacion ||--o| fevalconsumo
+dcuentacredito ||--|| fagcuentacredito
+dcuentacredito ||--o{ fplanpagomes
+dcuentacredito ||--o{ foperaciones
+dcuentacredito ||--o{ fgestioncobranza
+dsolicitud ||--o{ fagcuentacredito
+@enduml

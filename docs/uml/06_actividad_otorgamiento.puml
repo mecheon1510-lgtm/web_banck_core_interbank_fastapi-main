@@ -1,0 +1,54 @@
+@startuml actividad_otorgamiento
+' Diagrama de actividad del otorgamiento (MPR-003-CRE) con calles por rol
+title Otorgamiento de Crédito — Actividades por rol (MPR-003-CRE)
+
+|Cliente / Asesor|
+start
+:Crear solicitud (ME/PE/CO);
+:Validar elegibilidad
+(sujeto de crédito);
+if (¿Es sujeto de crédito?) then (no)
+  :Rechazar (422)\nmotivo elegibilidad;
+  stop
+else (sí)
+endif
+:Pre-scoring + RDS;
+:Registrar ingresos;
+:Registrar evaluación
+(activos ME / capacidad CO);
+
+|Sistema|
+:Determinar nivel por monto
+(Art. 30) y ruta (Art. 34);
+
+|Administrador / Jefe Reg. / Riesgos|
+if (¿Requiere opiniones?) then (sí)
+  :Emitir opinión(es);
+  if (¿Riesgos desfavorable?) then (sí)
+    :Denegar;
+    stop
+  endif
+else (no)
+endif
+
+|Asesor|
+:Enviar a Comité;
+
+|Comité|
+:Revisar y resolver;
+if (¿Aprobado?) then (no)
+  :Denegar (temporal/definitivo);
+  stop
+else (sí)
+  :Aprobar;
+endif
+
+|Comité / Operaciones|
+:Desembolsar
+(crea cuenta + movimiento);
+:Generar cronograma;
+
+|Cliente|
+:Ve desembolso en Homebanking;
+stop
+@enduml

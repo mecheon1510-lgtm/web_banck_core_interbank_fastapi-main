@@ -1,0 +1,124 @@
+==== dsolicitud ====  filas=1100
+   pksolicitud : integer
+   codsolicitud : character varying
+   pkcliente : integer
+   codexpediente : character varying
+   pksolicitudestado : integer
+   codlineacredito : character
+   pksolicitudsituacion : integer
+   pkmoneda : integer
+   pkgrupocredito : integer
+   pknivelaprobacion : integer
+   pkcomite : integer
+   pkproducto : integer
+   pkrecurso : integer
+   pksubrecurso : integer
+   pkmodalidad : integer
+   pkcanaldesembolso : integer
+   codtiposolicitud : character
+   destiposolicitud : character varying
+   codmotivosolicitud : character
+   desmotivosolicitud : character varying
+   montosolicitudcredito : numeric
+   nrocuotasolicitud : integer
+   plazosolicitudcredito : integer
+   fechasolicitudcredito : date
+   codususol : character
+   montoaprobadocredito : numeric
+   nrocuotaaprobado : integer
+   nrodiasgracia : integer
+   diafechafija : smallint
+   plazoaprobadocredito : integer
+   codtipoperiodo : character
+   destipoperiodo : character varying
+   codtipocuota : character
+   destipocuota : character varying
+   flaglibreamortizacioncredito : character
+   fechaaprobacioncredito : date
+   nrotasacompensatoria : character
+   tasainterescompensatoria : numeric
+   nrotasamoratoria : character
+   tasainteresmoratoria : numeric
+   codusuing : character
+   nrodiasgraciaaprobado : integer
+   codtipocliente : character
+   pktipotasacompensatoria : integer
+   pktipotasamoratoria : integer
+   pkactividadeconomicasolicitud : integer
+   pkadeudado : integer
+   pkagencia : integer
+   pkjeferegional : integer
+   pkadministrador : integer
+   pkasesor : integer
+   pkasesornivel : integer
+   fechahoracreacion : timestamp without time zone
+   fechahoraultmodificacion : timestamp without time zone
+   fecultactualizacion : timestamp without time zone
+==== dsolicitudestado ====  filas=6
+   pksolicitudestado : integer
+   codsolicitudestado : character
+   dessolicitudestado : character varying
+   fecultactualizacion : timestamp without time zone
+==== dsolicitudsituacion ====  filas=5
+   pksolicitudsituacion : integer
+   codsolicitudsituacion : character
+   dessolicitudsituacion : character varying
+   fecultactualizacion : timestamp without time zone
+==== dcalificacioncrediticia ====  filas=5
+   pkcalificacioncrediticia : integer
+   codcalificacioncrediticia : character
+   descalificacioncrediticia : character varying
+   fecultactualizacion : timestamp without time zone
+==== dtipocredito ====  filas=6
+   pktipocredito : integer
+   codtipocredito : character
+   destipocredito : character varying
+   fecultactualizacion : timestamp without time zone
+==== dproducto ====  filas=14
+   pkproducto : integer
+   codtipocredito : character
+   codproducto : character
+   codsubproducto : character
+   destipocredito : character varying
+   desproducto : character varying
+   dessubproducto : character varying
+   dessubtipoproducto : character varying
+   fechainiciovig : date
+   fechafinvig : date
+   flagactivo : character
+   fecultactualizacion : timestamp without time zone
+==== dmodalidad ====  filas=5
+   pkmodalidad : integer
+   codmodalidad : character
+   desmodalidad : character varying
+   fecultactualizacion : timestamp without time zone
+==== dgarantia ====  filas=6
+   pkgarantia : integer
+   codtipogarantia : character
+   destipogarantia : character varying
+   codclase : character
+   desclase : character varying
+   codtipoclase : character
+   destipoclase : character varying
+   codsubtipoclase : character
+   dessubtipoclase : character varying
+   fecultactualizacion : timestamp without time zone
+==== dcomite ====  filas=5
+   pkcomite : integer
+   codcomite : character
+   descomite : character varying
+   fecultactualizacion : timestamp without time zone
+==== dnivelaprobacion ====  filas=6
+   pknivelaprobacion : integer
+   codnivelaprobacion : character
+   desnivelaprobacion : character varying
+   montominimo : numeric
+   montomaximo : numeric
+   fecultactualizacion : timestamp without time zone
+==== devaluacion ====  filas=0
+   pkevaluacion : integer
+   nroevaluacion : character varying
+   valorexcedentecredito : numeric
+   tipoevaluacion : character
+   codsolicitud : character varying
+   fecultactualizacion : timestamp without time zone

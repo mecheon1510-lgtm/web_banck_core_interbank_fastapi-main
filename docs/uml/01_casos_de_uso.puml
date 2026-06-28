@@ -1,0 +1,64 @@
+@startuml casos_de_uso
+' Casos de uso del Core Banco Andino (Otorgamiento + Homebanking + Recuperaciones)
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Cliente\n(Homebanking)" as Cli
+actor "Asesor de\nNegocios" as Ase
+actor "Administrador" as Adm
+actor "Jefe Regional" as Jef
+actor "Gerencia de\nRiesgos" as Rie
+actor "Comité de\nCréditos" as Com
+actor "Gestor de\nCobranza" as Ges
+
+rectangle "OTORGAMIENTO (MPR-003-CRE)" {
+  usecase "Solicitar crédito" as UC1
+  usecase "Pre-scoring + RDS" as UC2
+  usecase "Registrar ingresos" as UC3
+  usecase "Registrar evaluación" as UC4
+  usecase "Emitir opinión" as UC5
+  usecase "Resolver (Comité)" as UC6
+  usecase "Desembolsar" as UC7
+}
+
+rectangle "HOMEBANKING (Caja Virtual)" {
+  usecase "Ver cuentas/movimientos" as UC8
+  usecase "Pagar cuota" as UC9
+  usecase "Transferencia propia" as UC10
+}
+
+rectangle "RECUPERACIONES (Mora)" {
+  usecase "Consultar cartera en mora" as UC11
+  usecase "Registrar gestión cobranza" as UC12
+  usecase "Pasar a judicial / castigo" as UC13
+}
+
+rectangle "GESTIÓN" {
+  usecase "Dashboard / KPIs" as UC14
+  usecase "Bandeja de solicitudes" as UC15
+  usecase "Mi cartera" as UC16
+}
+
+Cli --> UC1
+Cli --> UC8
+Cli --> UC9
+Cli --> UC10
+
+Ase --> UC3
+Ase --> UC4
+Ase --> UC15
+Ase --> UC16
+UC1 ..> UC2 : <<include>>
+
+Adm --> UC5
+Jef --> UC5
+Rie --> UC5
+Com --> UC6
+Com --> UC7
+Adm --> UC14
+
+Ges --> UC11
+Ges --> UC12
+Adm --> UC13
+@enduml

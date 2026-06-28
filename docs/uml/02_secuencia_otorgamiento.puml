@@ -1,0 +1,40 @@
+@startuml secuencia_otorgamiento
+' Flujo end-to-end: Homebanking -> Core -> Desembolso -> Homebanking
+title Otorgamiento de Crédito — Flujo Homebanking ⇄ Core (MPR-003-CRE)
+
+actor Cliente
+participant "Homebanking\n(:8002)" as HB
+participant "Core API\n(:8001)" as Core
+participant "Asesor" as Ase
+participant "Comité" as Com
+database "bd_core_financiero" as DB
+
+== Solicitud (cliente) ==
+Cliente -> HB : login (username/clave)
+HB -> Core : POST /hb/solicitar
+Core -> Core : elegibilidad + pre-scoring + RDS + ruta
+Core -> DB : INSERT dsolicitud (En Evaluación)
+Core --> HB : codsolicitud, estado, ruta
+HB --> Cliente : "Solicitud En Evaluación"
+
+== Evaluación (asesor) ==
+Ase -> Core : POST .../{cod}/ingresos
+Core -> DB : UPSERT fclientefuenteingreso
+Ase -> Core : POST .../{cod}/evaluacion
+Core -> DB : INSERT devaluacion + fevalconsumo|fevalmicroactivo
+Ase -> Core : POST .../{cod}/comite
+Core -> DB : UPDATE estado = En Comité
+
+== Resolución y desembolso (comité) ==
+Com -> Core : POST .../{cod}/resolver (APROBADO)
+Core -> DB : UPDATE estado = Aprobado
+Com -> Core : POST .../{cod}/desembolsar
+Core -> DB : INSERT dcuentacredito + foperaciones (DCAP)
+Core -> DB : UPDATE estado = Desembolsado
+Core --> Com : codcuentacredito
+
+== El cliente ve el desembolso ==
+Cliente -> HB : GET /hb/movimientos
+HB -> DB : SELECT foperaciones
+HB --> Cliente : "Desembolso Capital S/ X"
+@enduml

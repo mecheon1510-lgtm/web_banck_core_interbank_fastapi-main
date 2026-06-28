@@ -1,0 +1,85 @@
+@startuml arquitectura_capas
+' Arquitectura en capas del backend Core (FastAPI)
+title Core Financiero — Arquitectura en Capas (Backend FastAPI)
+
+skinparam packageStyle rectangle
+
+package "Rutas (app/routes) — HTTP/REST" {
+  [rtr_auth]
+  [rtr_scoring]
+  [rtr_creditos]
+  [rtr_dashboard]
+  [rtr_ahorros]
+  [rtr_clientes]
+  [rtr_homebanking]
+  [rtr_recuperaciones]
+}
+
+package "Controladores (app/controllers) — Orquestación" {
+  [ctl_auth]
+  [ctl_scoring]
+  [ctl_creditos]
+  [ctl_dashboard]
+}
+
+package "Servicios (app/services) — Reglas de negocio" {
+  [svc_elegibilidad]
+  [svc_rds]
+  [svc_portal]
+}
+
+package "Repositorios (app/repositories) — SQL" {
+  [rep_clientes]
+  [rep_solicitudes]
+  [rep_creditos]
+  [rep_evaluacion]
+  [rep_recuperaciones]
+  [rep_ahorros]
+  [rep_metas]
+  [rep_fag]
+  [rep_homebanking]
+}
+
+package "Núcleo (app/core) — Transversal" {
+  [cfg_config]
+  [cfg_database]
+  [cfg_security (JWT)]
+  [cfg_auth (RBAC)]
+  [cfg_roles]
+  [cfg_calibracion]
+}
+
+database "PostgreSQL\nbd_core_financiero" as DB
+
+[rtr_creditos] --> [ctl_creditos]
+[rtr_scoring] --> [ctl_scoring]
+[rtr_dashboard] --> [ctl_dashboard]
+[rtr_auth] --> [ctl_auth]
+[rtr_recuperaciones] --> [rep_recuperaciones]
+[rtr_ahorros] --> [rep_ahorros]
+
+[ctl_creditos] --> [svc_elegibilidad]
+[ctl_creditos] --> [svc_rds]
+[ctl_creditos] --> [rep_solicitudes]
+[ctl_creditos] --> [rep_evaluacion]
+[ctl_creditos] --> [rep_clientes]
+[ctl_dashboard] --> [rep_metas]
+[ctl_dashboard] --> [rep_fag]
+
+[rep_solicitudes] --> DB
+[rep_creditos] --> DB
+[rep_recuperaciones] --> DB
+[rep_evaluacion] --> DB
+[rep_ahorros] --> DB
+[rep_homebanking] --> DB
+
+[rtr_creditos] ..> [cfg_auth] : valida rol
+[cfg_auth] ..> [cfg_roles]
+[cfg_database] --> DB
+
+note bottom of DB
+  Rutas → Controladores → Servicios/Repositorios → BD.
+  Núcleo (core) es transversal: config, sesión DB,
+  seguridad JWT y RBAC.
+end note
+@enduml
